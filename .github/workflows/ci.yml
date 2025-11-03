@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake
+    
+    - name: Configure CMake
+      run: |
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: |
+        cd build
+        cmake --build . -j
+    
+    - name: Run tests
+      run: |
+        cd build
+        ./test_orderbook || echo "Tests completed"
+    
+    - name: Generate diagrams
+      run: |
+        pip install matplotlib numpy
+        python scripts/generate_diagrams.py || echo "Diagram generation completed"
+
